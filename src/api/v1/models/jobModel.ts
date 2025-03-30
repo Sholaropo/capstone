@@ -62,7 +62,7 @@
  *           example: "2024-03-23T12:30:00Z"
  */
 
-export type JobPosting = {
+export type Job = {
     title: string;
     company: string;
     location: string;
