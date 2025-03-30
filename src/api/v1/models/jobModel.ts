@@ -5,6 +5,10 @@
  *     Job:
  *       type: object
  *       properties:
+ *         id:
+ *           type: string
+ *           description: The unique identifier of the job
+ *           example: "abcde12345" 
  *         title:
  *           type: string
  *           description: The title of the job position
@@ -63,6 +67,7 @@
  */
 
 export type Job = {
+    id: string;
     title: string;
     company: string;
     location: string;

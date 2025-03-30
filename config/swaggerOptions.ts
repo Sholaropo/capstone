@@ -4,7 +4,7 @@ const swaggerOptions: swaggerJsdoc.Options = {
     definition: {
         openapi: "3.0.0",
         info: {
-            title: "Job Application Management API Documentations",
+            title: "Job Application Management API Documentation",
             version: "1.0.0",
             description:
                 "This is the API documentation for the Job Application Management API",
