@@ -32,4 +32,30 @@ router.get(
   jobController.getAllJobs
 );
 
+/**
+ * @openapi
+ * /jobs:
+ *   post:
+ *     summary: Create a new job
+ *     tags: [Job]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Job'
+ *     responses:
+ *       201:
+ *         description: Job created
+ *       400:
+ *         description: Invalid input
+ */
+router.post(
+    "/",
+    authenticate,
+    isAuthorized({ hasRole: ["user"] }),
+    validateRequest(jobSchema),
+    jobController.createJob
+);
+
 export default router;

@@ -1,5 +1,5 @@
-import { getAllJobs } from "../src/api/v1/services/jobService";
-import { getDocuments } from "../src/api/v1/repositories/firestoreRepository";
+import { getAllJobs, createJob } from "../src/api/v1/services/jobService";
+import { getDocuments, createDocument } from "../src/api/v1/repositories/firestoreRepository";
 import { Job } from "src/api/v1/models/jobModel";
 import {
   QuerySnapshot,
@@ -106,6 +106,63 @@ describe("Job Service", () => {
         createdAt: mockDate,
         updatedAt: mockDate,
       });
+    });
+  });
+
+  describe("createJob", () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it("should successfully create a job", async () => {
+      const mockDate: Date = new Date();
+      const newJob: Job = {
+        id: "job123",
+        title: "backend developer",
+        company: "abc",
+        location: "canada",
+        url: "http://www.abc.com",
+        description: "Entry level backend developer with 1 year experience needed",
+        level: "ENTRY LEVEL",
+        mode: "FULL TIME",
+        stage: "NOT APPLIED",
+        date_posted: mockDate,
+        active: true,
+        createdAt: mockDate,
+        updatedAt: mockDate,
+      };
+
+      (createDocument as jest.Mock).mockResolvedValue({ ...newJob });
+
+      const result = await createJob(newJob);
+
+      expect(createDocument).toHaveBeenCalledWith("jobs", newJob);
+      expect(createDocument).toHaveBeenCalledTimes(1);
+      expect(result).toEqual({ ...newJob });
+    });
+
+    it("should throw an error if job creation fails", async () => {
+      const newJob: Job = {
+        id: "job123",
+        title: "backend developer",
+        company: "abc",
+        location: "canada",
+        url: "http://www.abc.com",
+        description: "Entry level backend developer with 1 year experience needed",
+        level: "ENTRY LEVEL",
+        mode: "FULL TIME",
+        stage: "NOT APPLIED",
+        date_posted: new Date(),
+        active: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      (createDocument as jest.Mock).mockRejectedValue(new Error("Failed to create job"));
+
+      await expect(createJob(newJob)).rejects.toThrow("Failed to create job");
+      expect(createDocument).toHaveBeenCalledWith("jobs", newJob);
+      expect(createDocument).toHaveBeenCalledTimes(1);
     });
   });
 });
