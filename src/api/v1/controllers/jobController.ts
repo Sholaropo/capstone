@@ -24,3 +24,24 @@ export const getAllJobs = async (
         next(error);
     }
 };
+
+/**
+ * @description Create a new job.
+ * @route POST /
+ * @returns {Promise<void>}
+ */
+export const createJob = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+): Promise<void> => {
+    try {
+        const newJob: Job = await jobService.createJob(req.body);
+
+        res.status(HTTP_STATUS.CREATED).json(
+            successResponse(newJob, "Job Created")
+        );
+    } catch (error) {
+        next(error);
+    }
+};
