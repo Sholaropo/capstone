@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { RepositoryError, ServiceError } from "../errors/error";
+import { RepositoryError, ServiceError } from "../errors/errors";
 import { HTTP_STATUS } from "../../../constants/httpConstants";
 import { errorResponse } from "../models/responseModel";
 
