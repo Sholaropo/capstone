@@ -1,5 +1,5 @@
 import { Job } from "../models/jobModel";
-import { getDocuments, createDocument, getDocumentById } from "../repositories/firestoreRepository";
+import { getDocuments, createDocument, getDocumentById, deleteDocument } from "../repositories/firestoreRepository";
 
 const COLLECTION: string = "jobs";
 
@@ -46,4 +46,14 @@ export const createJob = async (
 ): Promise<Job> => {
   const id: string = await createDocument(COLLECTION, job);
   return { id, ...job } as Job;
+};
+
+/**
+ * @description Delete a job.
+ * @param {string} id - The ID of the job to delete.
+ * @returns {Promise<void>}
+ * @throws {Error} If the job with the given ID is not found.
+ */
+export const deleteJob = async (id: string): Promise<void> => {
+  await deleteDocument(COLLECTION, id);
 };
