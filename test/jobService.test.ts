@@ -1,5 +1,5 @@
-import { getAllJobs, createJob } from "../src/api/v1/services/jobService";
-import { getDocuments, createDocument } from "../src/api/v1/repositories/firestoreRepository";
+import { getAllJobs, createJob, getJobById } from "../src/api/v1/services/jobService";
+import { getDocuments, createDocument, getDocumentById } from "../src/api/v1/repositories/firestoreRepository";
 import { Job } from "src/api/v1/models/jobModel";
 import {
   QuerySnapshot,
@@ -10,6 +10,7 @@ import {
 jest.mock("../src/api/v1/repositories/firestoreRepository", () => ({
   getDocuments: jest.fn(),
   createDocument: jest.fn(),
+  getDocumentById: jest.fn(),
 }));
 
 describe("Job Service", () => {
@@ -108,6 +109,49 @@ describe("Job Service", () => {
       });
     });
   });
+
+describe("getJobById", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("should return a job when the job exists", async () => {
+    const mockDate = new Date();
+    const mockId = "job123";
+    const mockData: DocumentData = {
+      title: "software engineer",
+      company: "xyz corp",
+      location: "remote",
+      url: "https://xyz.com",
+      description: "Looking for a talented software engineer",
+      level: "MID LEVEL",
+      mode: "FULL TIME",
+      stage: "APPLIED",
+      date_posted: mockDate,
+      active: true,
+      createdAt: mockDate,
+      updatedAt: mockDate,
+    };
+
+    const mockDoc = {
+      id: mockId,
+      exists: true,
+      data: () => mockData,
+    };
+
+    (getDocumentById as jest.Mock).mockResolvedValue(mockDoc);
+
+    const result = await getJobById(mockId);
+
+    expect(getDocumentById).toHaveBeenCalledWith("jobs", mockId);
+    expect(getDocumentById).toHaveBeenCalledTimes(1);
+
+    expect(result).toEqual({
+      id: mockId,
+      ...mockData,
+    });
+  });
+});
 
   describe("createJob", () => {
     beforeEach(() => {

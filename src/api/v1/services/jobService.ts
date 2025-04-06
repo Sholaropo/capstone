@@ -1,5 +1,5 @@
 import { Job } from "../models/jobModel";
-import { getDocuments, createDocument } from "../repositories/firestoreRepository";
+import { getDocuments, createDocument, getDocumentById } from "../repositories/firestoreRepository";
 
 const COLLECTION: string = "jobs";
 
@@ -18,10 +18,27 @@ export const getAllJobs = async (): Promise<Job[]> => {
   });
 };
 
+/**
+ * @description Get a single job by ID.
+ * @param {string} id - The ID of the job to retrieve.
+ * @returns {Promise<Job>}
+ * @throws {Error} If the job with the given ID is not found.
+ */
+export const getJobById = async (id: string): Promise<Job> => {
+  const doc: FirebaseFirestore.DocumentSnapshot = await getDocumentById(
+    COLLECTION,
+    id
+  );
+  if (!doc.exists) {
+    throw new Error(`Job with ID ${id} not found`);
+  }
+  const data: FirebaseFirestore.DocumentData | undefined = doc.data();
+  return { id: doc.id, ...data } as Job;
+};
 
 /**
  * @description Create a new job.
- * @param {Partial<Job>} branch - The job data.
+ * @param {Partial<Job>} job - The job data.
  * @returns {Promise<Job>}
  */
 export const createJob = async (

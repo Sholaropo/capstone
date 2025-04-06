@@ -25,6 +25,26 @@ export const getAllJobs = async (
     }
 };
 
+
+/**
+ * @description Get a single job by ID.
+ * @route GET /:id
+ * @returns {Promise<void>}
+ */
+export const getJobById = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+): Promise<void> => {
+    try {
+        const job: Job = await jobService.getJobById(req.params.id);
+        res.status(HTTP_STATUS.OK).json(successResponse(job, "Job Retrieved"));
+    } catch (error) {
+        next(error);
+    }
+};
+
+
 /**
  * @description Create a new job.
  * @route POST /

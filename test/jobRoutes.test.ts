@@ -1,12 +1,17 @@
 import request from "supertest";
 import { Request, Response, NextFunction } from "express";
 import app from "../src/app";
-import { createJob, getAllJobs } from "../src/api/v1/controllers/jobController";
+import {
+  createJob,
+  getAllJobs,
+  getJobById,
+} from "../src/api/v1/controllers/jobController";
 import { Job } from "../src/api/v1/models/jobModel";
 
 jest.mock("../src/api/v1/controllers/jobController", () => ({
   getAllJobs: jest.fn((req, res) => res.status(200).send()),
   createJob: jest.fn((req, res) => res.status(201).send()),
+  getJobById: jest.fn((req, res) => res.status(200).send()),
 }));
 
 jest.mock("../src/api/v1/middleware/authenticate", () => {
@@ -28,6 +33,14 @@ describe("Job Routes", () => {
     it("should call getAllJobs controller", async () => {
       await request(app).get("/api/v1/jobs");
       expect(getAllJobs).toHaveBeenCalled();
+    });
+  });
+
+  describe("GET /api/v1/jobs/:id", () => {
+    it("should call getJobById controller", async () => {
+      const mockId = "1";
+      await request(app).get(`/api/v1/jobs/${mockId}`);
+      expect(getJobById).toHaveBeenCalled();
     });
   });
 

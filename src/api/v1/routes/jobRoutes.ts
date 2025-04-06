@@ -34,6 +34,40 @@ router.get(
 
 /**
  * @openapi
+ * /jobs/{id}:
+ *   get:
+ *     summary: Retrieve a job by its ID
+ *     description: Fetch a specific job by its unique identifier.
+ *     tags: [Job]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The unique identifier of the job
+ *         example: "job_123abc"
+ *     responses:
+ *       200:
+ *         description: The job details retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Job'
+ *       404:
+ *         description: Job not found
+ */
+router.get(
+  "/:id",
+  authenticate,
+  isAuthorized({ hasRole: ["user"] }),
+  jobController.getJobById
+);
+
+/**
+ * @openapi
  * /jobs:
  *   post:
  *     summary: Create a new job
@@ -51,11 +85,11 @@ router.get(
  *         description: Invalid input
  */
 router.post(
-    "/",
-    authenticate,
-    isAuthorized({ hasRole: ["user"] }),
-    validateRequest(jobSchema),
-    jobController.createJob
+  "/",
+  authenticate,
+  isAuthorized({ hasRole: ["user"] }),
+  validateRequest(jobSchema),
+  jobController.createJob
 );
 
 export default router;

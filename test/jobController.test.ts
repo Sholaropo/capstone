@@ -1,6 +1,7 @@
 jest.mock("../src/api/v1/services/jobService", () => ({
   getAllJobs: jest.fn(),
   createJob: jest.fn(),
+  getJobById: jest.fn(),
 }));
 
 import { Request, Response, NextFunction } from "express";
@@ -53,6 +54,41 @@ describe("Job Controller", () => {
       expect(mockRes.json).toHaveBeenCalledWith({
         message: "Jobs Retrieved",
         data: mockJobs,
+        status: "success",
+      });
+    });
+  });
+
+  describe("getJobById", () => {
+    it("should handle successful operation", async () => {
+      const mockJob = {
+        id: "1",
+        title: "backend developer",
+        company: "abc",
+        location: "canada",
+        url: "http://www.abc.com",
+        description:
+          "Entry level backend developer with 1 year experience needed",
+        level: "ENTRY LEVEL",
+        mode: "FULL TIME",
+        stage: "NOT APPLIED",
+        date_posted: new Date("2025-03-28"),
+        active: true,
+      };
+      mockReq.params = { id: "1" };
+
+      (jobService.getJobById as jest.Mock).mockResolvedValue(mockJob);
+
+      await jobController.getJobById(
+        mockReq as Request,
+        mockRes as Response,
+        mockNext
+      );
+
+      expect(mockRes.status).toHaveBeenCalledWith(200);
+      expect(mockRes.json).toHaveBeenCalledWith({
+        message: "Job Retrieved",
+        data: mockJob,
         status: "success",
       });
     });
