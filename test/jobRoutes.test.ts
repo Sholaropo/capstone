@@ -5,6 +5,7 @@ import {
   createJob,
   getAllJobs,
   getJobById,
+  deleteJob,
 } from "../src/api/v1/controllers/jobController";
 import { Job } from "../src/api/v1/models/jobModel";
 
@@ -12,6 +13,7 @@ jest.mock("../src/api/v1/controllers/jobController", () => ({
   getAllJobs: jest.fn((req, res) => res.status(200).send()),
   createJob: jest.fn((req, res) => res.status(201).send()),
   getJobById: jest.fn((req, res) => res.status(200).send()),
+  deleteJob: jest.fn((req, res) => res.status(200).send()),
 }));
 
 jest.mock("../src/api/v1/middleware/authenticate", () => {
@@ -63,6 +65,14 @@ describe("Job Routes", () => {
 
       await request(app).post("/api/v1/jobs").send(mockJob);
       expect(createJob).toHaveBeenCalled();
+    });
+  });
+
+  describe("DELETE /api/v1/jobs/:id", () => {
+    it("should call deleteJob controller", async () => {
+      const mockId = "1";
+      await request(app).delete(`/api/v1/jobs/${mockId}`);
+      expect(deleteJob).toHaveBeenCalled();
     });
   });
 });

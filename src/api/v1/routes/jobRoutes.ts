@@ -92,4 +92,36 @@ router.post(
   jobController.createJob
 );
 
+/**
+ * @openapi
+ * /jobs/{id}:
+ *   delete:
+ *     summary: Delete a job by its ID
+ *     description: Remove a specific job using its unique identifier.
+ *     tags: [Job]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The unique identifier of the job
+ *         example: "job_123abc"
+ *     responses:
+ *       200:
+ *         description: Job successfully deleted
+ *       404:
+ *         description: Job not found
+ */
+router.delete(
+  "/:id",
+  authenticate,
+  isAuthorized({ hasRole: ["user"] }),
+  validateRequest(deleteJobSchema),
+  jobController.deleteJob
+);
+
+
 export default router;

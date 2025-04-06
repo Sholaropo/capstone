@@ -65,3 +65,23 @@ export const createJob = async (
         next(error);
     }
 };
+
+
+/**
+ * @description Delete a job.
+ * @route DELETE /:id
+ * @returns {Promise<void>}
+ */
+export const deleteJob = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+): Promise<void> => {
+    try {
+        await jobService.deleteJob(req.params.id);
+
+        res.status(HTTP_STATUS.OK).json(successResponse("Job Deleted"));
+    } catch (error) {
+        next(error);
+    }
+};

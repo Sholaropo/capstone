@@ -2,6 +2,7 @@ jest.mock("../src/api/v1/services/jobService", () => ({
   getAllJobs: jest.fn(),
   createJob: jest.fn(),
   getJobById: jest.fn(),
+  deleteJob: jest.fn(),
 }));
 
 import { Request, Response, NextFunction } from "express";
@@ -142,6 +143,24 @@ describe("Job Controller", () => {
         data: createdJob,
         status: "success",
       });
+    });
+  });
+
+  describe("deleteJob", () => {
+    it("should handle successful job deletion", async () => {
+      const jobId = "1";
+      mockReq.params = { id: jobId };
+
+      (jobService.deleteJob as jest.Mock).mockResolvedValue(undefined);
+
+      await jobController.deleteJob(
+        mockReq as Request,
+        mockRes as Response,
+        mockNext
+      );
+
+      expect(jobService.deleteJob).toHaveBeenCalledWith(jobId);
+      expect(mockRes.status).toHaveBeenCalledWith(200);
     });
   });
 });

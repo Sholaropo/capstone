@@ -1,5 +1,15 @@
-import { getAllJobs, createJob, getJobById } from "../src/api/v1/services/jobService";
-import { getDocuments, createDocument, getDocumentById } from "../src/api/v1/repositories/firestoreRepository";
+import {
+  getAllJobs,
+  createJob,
+  getJobById,
+  deleteJob,
+} from "../src/api/v1/services/jobService";
+import {
+  getDocuments,
+  createDocument,
+  getDocumentById,
+  deleteDocument,
+} from "../src/api/v1/repositories/firestoreRepository";
 import { Job } from "src/api/v1/models/jobModel";
 import {
   QuerySnapshot,
@@ -11,6 +21,7 @@ jest.mock("../src/api/v1/repositories/firestoreRepository", () => ({
   getDocuments: jest.fn(),
   createDocument: jest.fn(),
   getDocumentById: jest.fn(),
+  deleteDocument: jest.fn(),
 }));
 
 describe("Job Service", () => {
@@ -110,49 +121,48 @@ describe("Job Service", () => {
     });
   });
 
-describe("getJobById", () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
+  describe("getJobById", () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
 
-  it("should return a job when the job exists", async () => {
-    const mockDate = new Date();
-    const mockId = "job123";
-    const mockData: DocumentData = {
-      title: "software engineer",
-      company: "xyz corp",
-      location: "remote",
-      url: "https://xyz.com",
-      description: "Looking for a talented software engineer",
-      level: "MID LEVEL",
-      mode: "FULL TIME",
-      stage: "APPLIED",
-      date_posted: mockDate,
-      active: true,
-      createdAt: mockDate,
-      updatedAt: mockDate,
-    };
+    it("should return a job when the job exists", async () => {
+      const mockDate = new Date();
+      const mockId = "job123";
+      const mockData: DocumentData = {
+        title: "software engineer",
+        company: "xyz corp",
+        location: "remote",
+        url: "https://xyz.com",
+        description: "Looking for a talented software engineer",
+        level: "MID LEVEL",
+        mode: "FULL TIME",
+        stage: "APPLIED",
+        date_posted: mockDate,
+        active: true,
+        createdAt: mockDate,
+        updatedAt: mockDate,
+      };
 
-    const mockDoc = {
-      id: mockId,
-      exists: true,
-      data: () => mockData,
-    };
+      const mockDoc = {
+        id: mockId,
+        exists: true,
+        data: () => mockData,
+      };
 
-    (getDocumentById as jest.Mock).mockResolvedValue(mockDoc);
+      (getDocumentById as jest.Mock).mockResolvedValue(mockDoc);
 
-    const result = await getJobById(mockId);
+      const result = await getJobById(mockId);
 
-    expect(getDocumentById).toHaveBeenCalledWith("jobs", mockId);
-    expect(getDocumentById).toHaveBeenCalledTimes(1);
+      expect(getDocumentById).toHaveBeenCalledWith("jobs", mockId);
+      expect(getDocumentById).toHaveBeenCalledTimes(1);
 
-    expect(result).toEqual({
-      id: mockId,
-      ...mockData,
+      expect(result).toEqual({
+        id: mockId,
+        ...mockData,
+      });
     });
   });
-});
-
   describe("createJob", () => {
     beforeEach(() => {
       jest.clearAllMocks();
@@ -166,7 +176,8 @@ describe("getJobById", () => {
         company: "abc",
         location: "canada",
         url: "http://www.abc.com",
-        description: "Entry level backend developer with 1 year experience needed",
+        description:
+          "Entry level backend developer with 1 year experience needed",
         level: "ENTRY LEVEL",
         mode: "FULL TIME",
         stage: "NOT APPLIED",
@@ -192,7 +203,8 @@ describe("getJobById", () => {
         company: "abc",
         location: "canada",
         url: "http://www.abc.com",
-        description: "Entry level backend developer with 1 year experience needed",
+        description:
+          "Entry level backend developer with 1 year experience needed",
         level: "ENTRY LEVEL",
         mode: "FULL TIME",
         stage: "NOT APPLIED",
@@ -202,11 +214,30 @@ describe("getJobById", () => {
         updatedAt: new Date(),
       };
 
-      (createDocument as jest.Mock).mockRejectedValue(new Error("Failed to create job"));
+      (createDocument as jest.Mock).mockRejectedValue(
+        new Error("Failed to create job")
+      );
 
       await expect(createJob(newJob)).rejects.toThrow("Failed to create job");
       expect(createDocument).toHaveBeenCalledWith("jobs", newJob);
       expect(createDocument).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("deleteJob", () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it("should delete the job with the given ID", async () => {
+      const mockJobId = "job123";
+
+      (deleteDocument as jest.Mock).mockResolvedValue(undefined);
+
+      await deleteJob(mockJobId);
+
+      expect(deleteDocument).toHaveBeenCalledWith("jobs", mockJobId);
+      expect(deleteDocument).toHaveBeenCalledTimes(1);
     });
   });
 });
