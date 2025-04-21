@@ -1,7 +1,43 @@
+import { db } from "../../../../config/firebaseConfig";
 import { Job } from "../models/jobModel";
 import { getDocuments, createDocument, getDocumentById, deleteDocument, updateDocument } from "../repositories/firestoreRepository";
 
 const COLLECTION: string = "jobs";
+
+/**
+ * @description Get paginated jobs.
+ * @param {number} page - The page number
+ * @param {number} limit - The number of items per page
+ * @returns {Promise<{jobs: Job[], total: number}>}
+ */
+export const getPaginatedJobs = async (
+    page: number = 1,
+    limit: number = 10
+): Promise<{jobs: Job[], total: number}> => {
+    // Calculate offset
+    const offset = (page - 1) * limit;
+    
+    // Get total count of documents in the collection
+    const collectionRef = db.collection(COLLECTION);
+    const countSnapshot = await collectionRef.count().get();
+    const total = countSnapshot.data().count;
+    
+    // Get paginated documents
+    const snapshot: FirebaseFirestore.QuerySnapshot = await collectionRef
+        .limit(limit)
+        .offset(offset)
+        .get();
+    
+    const jobs = snapshot.docs.map((doc) => {
+        const data: FirebaseFirestore.DocumentData = doc.data();
+        return { id: doc.id, ...data } as Job;
+    });
+    
+    return {
+        jobs,
+        total
+    };
+};
 
 /**
  * @description Get all jobs.
