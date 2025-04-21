@@ -6,6 +6,7 @@ import {
   getAllJobs,
   getJobById,
   deleteJob,
+  updateJob,
 } from "../src/api/v1/controllers/jobController";
 import { Job } from "../src/api/v1/models/jobModel";
 
@@ -14,6 +15,7 @@ jest.mock("../src/api/v1/controllers/jobController", () => ({
   createJob: jest.fn((req, res) => res.status(201).send()),
   getJobById: jest.fn((req, res) => res.status(200).send()),
   deleteJob: jest.fn((req, res) => res.status(200).send()),
+  updateJob: jest.fn((req, res) => res.status(200).send()),
 }));
 
 jest.mock("../src/api/v1/middleware/authenticate", () => {
@@ -73,6 +75,28 @@ describe("Job Routes", () => {
       const mockId = "1";
       await request(app).delete(`/api/v1/jobs/${mockId}`);
       expect(deleteJob).toHaveBeenCalled();
+    });
+  });
+
+  describe("PUT /api/v1/jobs/:id", () => {
+    it("should call updateJob controller", async () => {
+      const mockId = "1";
+      const mockUpdate = {
+        title: "fullstack developer",
+        company: "abc",
+        location: "canada",
+        url: "http://www.abc.com",
+        description:
+          "Entry level fullstack developer with 1 year experience needed",
+        level: "ENTRY LEVEL",
+        mode: "FULL TIME",
+        stage: "NOT APPLIED",
+        date_posted: "2025-03-28T00:00:00.000Z",
+        active: true,
+      };
+
+      await request(app).put(`/api/v1/jobs/${mockId}`).send(mockUpdate);
+      expect(updateJob).toHaveBeenCalled();
     });
   });
 });

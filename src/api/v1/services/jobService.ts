@@ -1,5 +1,5 @@
 import { Job } from "../models/jobModel";
-import { getDocuments, createDocument, getDocumentById, deleteDocument } from "../repositories/firestoreRepository";
+import { getDocuments, createDocument, getDocumentById, deleteDocument, updateDocument } from "../repositories/firestoreRepository";
 
 const COLLECTION: string = "jobs";
 
@@ -47,6 +47,22 @@ export const createJob = async (
   const id: string = await createDocument(COLLECTION, job);
   return { id, ...job } as Job;
 };
+
+/**
+ * @description Update an existing job.
+ * @param {string} id - The ID of the job to update.
+ * @param {Partial<Job>} job - The updated job data.
+ * @returns {Promise<Job>}
+ * @throws {Error} If the job with the given ID is not found.
+ */
+export const updateJob = async (
+  id: string,
+  job: Partial<Job>
+): Promise<Job> => {
+    await updateDocument(COLLECTION, id, job);
+    return { id, ...job } as Job;
+};
+
 
 /**
  * @description Delete a job.

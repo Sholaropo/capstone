@@ -95,6 +95,49 @@ router.post(
 /**
  * @openapi
  * /jobs/{id}:
+ *   put:
+ *     summary: Update a job by its ID
+ *     description: Updates the details of a specific job by its ID.
+ *     tags: [Job]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The unique identifier of the job
+ *         example: "job_123abc"
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Job'
+ *     responses:
+ *       200:
+ *         description: Job updated successfully
+ *         content:
+ *          application/json:
+ *            schema:
+ *             $ref: '#/components/schemas/Job'
+ *       400:
+ *         description: Invalid input
+ *       404:
+ *         description: Job not found
+ */
+router.put(
+  "/:id",
+  authenticate,
+  isAuthorized({ hasRole: ["user"] }),
+  validateRequest(jobSchema),
+  jobController.updateJob
+);
+
+/**
+ * @openapi
+ * /jobs/{id}:
  *   delete:
  *     summary: Delete a job by its ID
  *     description: Remove a specific job using its unique identifier.
@@ -122,6 +165,5 @@ router.delete(
   validateRequest(deleteJobSchema),
   jobController.deleteJob
 );
-
 
 export default router;
