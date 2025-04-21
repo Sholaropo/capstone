@@ -3,6 +3,7 @@ jest.mock("../src/api/v1/services/jobService", () => ({
   createJob: jest.fn(),
   getJobById: jest.fn(),
   deleteJob: jest.fn(),
+  updateJob: jest.fn(),
 }));
 
 import { Request, Response, NextFunction } from "express";
@@ -161,6 +162,49 @@ describe("Job Controller", () => {
 
       expect(jobService.deleteJob).toHaveBeenCalledWith(jobId);
       expect(mockRes.status).toHaveBeenCalledWith(200);
+    });
+  });
+
+  describe("updateJob", () => {
+    it("should handle successful job update", async () => {
+      const jobId = "1";
+      const updateData = {
+        title: "fullstack developer",
+        company: "abc",
+        location: "canada",
+        url: "http://www.abc.com",
+        description:
+          "Entry level fullstack developer with 1 year experience needed",
+        level: "ENTRY LEVEL",
+        mode: "FULL TIME",
+        stage: "NOT APPLIED",
+        date_posted: "2025-03-28T00:00:00.000Z",
+        active: true,
+      };
+
+      const updatedJob = {
+        id: jobId,
+        ...updateData,
+      };
+
+      mockReq.params = { id: jobId };
+      mockReq.body = updateData;
+
+      (jobService.updateJob as jest.Mock).mockResolvedValue(updatedJob);
+
+      await jobController.updateJob(
+        mockReq as Request,
+        mockRes as Response,
+        mockNext
+      );
+
+      expect(jobService.updateJob).toHaveBeenCalledWith(jobId, updateData);
+      expect(mockRes.status).toHaveBeenCalledWith(200);
+      expect(mockRes.json).toHaveBeenCalledWith({
+        message: "Job Updated",
+        data: updatedJob,
+        status: "success",
+      });
     });
   });
 });

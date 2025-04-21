@@ -66,6 +66,27 @@ export const createJob = async (
     }
 };
 
+/**
+ * @description Update a job by ID.
+ * @route PUT /:id
+ * @returns {Promise<void>}
+ */
+export const updateJob = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+): Promise<void> => {
+    try {
+        const updatedJob: Job = await jobService.updateJob(req.params.id, req.body);
+
+        res.status(HTTP_STATUS.OK).json(
+            successResponse(updatedJob, "Job Updated")
+        );
+    } catch (error) {
+        next(error);
+    }
+};
+
 
 /**
  * @description Delete a job.

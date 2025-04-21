@@ -3,12 +3,14 @@ import {
   createJob,
   getJobById,
   deleteJob,
+  updateJob,
 } from "../src/api/v1/services/jobService";
 import {
   getDocuments,
   createDocument,
   getDocumentById,
   deleteDocument,
+  updateDocument,
 } from "../src/api/v1/repositories/firestoreRepository";
 import { Job } from "src/api/v1/models/jobModel";
 import {
@@ -22,6 +24,7 @@ jest.mock("../src/api/v1/repositories/firestoreRepository", () => ({
   createDocument: jest.fn(),
   getDocumentById: jest.fn(),
   deleteDocument: jest.fn(),
+  updateDocument: jest.fn(),
 }));
 
 describe("Job Service", () => {
@@ -238,6 +241,41 @@ describe("Job Service", () => {
 
       expect(deleteDocument).toHaveBeenCalledWith("jobs", mockJobId);
       expect(deleteDocument).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("updateJob", () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it("should update the job with the given ID", async () => {
+      const mockJobId = "job123";
+      const updatedJob: Partial<Job> = {
+        title: "fullstack developer",
+        company: "abc",
+        location: "canada",
+        url: "http://www.abc.com",
+        description:
+          "Entry level fullstack developer with 1 year experience needed",
+        level: "ENTRY LEVEL",
+        mode: "FULL TIME",
+        stage: "NOT APPLIED",
+        date_posted: new Date("2025-03-28T00:00:00.000Z"),
+        active: true,
+      };
+
+      (updateDocument as jest.Mock).mockResolvedValue(updatedJob);
+
+      const result = await updateJob(mockJobId, updatedJob);
+
+      expect(updateDocument).toHaveBeenCalledWith(
+        "jobs",
+        mockJobId,
+        updatedJob
+      );
+      expect(updateDocument).toHaveBeenCalledTimes(1);
+      expect(result).toEqual({id: mockJobId, ...updatedJob});
     });
   });
 });
