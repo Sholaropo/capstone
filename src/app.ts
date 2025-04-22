@@ -9,6 +9,7 @@ dotenv.config();
 import setupSwagger from "../config/swagger";
 import jobRoutes from './api/v1/routes/jobRoutes';
 import userRoutes from "./api/v1/routes/userRoutes";
+import authRoutes from "./api/v1/routes/authRoutes";
 import adminRoutes from "./api/v1/routes/adminRoutes";
 import errorHandler from "./api/v1/middleware/errorHandler";
 
@@ -26,6 +27,7 @@ app.get("/health", (req, res) => {
 });
 
 app.use("/api/v1/jobs", jobRoutes);
+app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/admin", adminRoutes);
 

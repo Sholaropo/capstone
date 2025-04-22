@@ -1,8 +1,9 @@
 jest.mock("../src/api/v1/services/jobService", () => ({
-  getAllJobs: jest.fn(),
+  getPaginatedJobs: jest.fn(),
   createJob: jest.fn(),
   getJobById: jest.fn(),
   deleteJob: jest.fn(),
+  updateJob: jest.fn(),
 }));
 
 import { Request, Response, NextFunction } from "express";
@@ -19,45 +20,68 @@ describe("Job Controller", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockReq = { params: {}, body: {} };
+    mockReq = { params: {}, body: {}, query: {} };
     mockRes = { status: jest.fn().mockReturnThis(), json: jest.fn() };
     mockNext = jest.fn();
   });
 
-  describe("getAllJobs", () => {
-    it("should handle successful operation", async () => {
-      const mockJobs: Partial<Job>[] = [
-        {
-          id: "1",
-          title: "backend developer",
-          company: "abc",
-          location: "canada",
-          url: "http://www.abc.com",
-          description:
-            "Entry level backend developer with 1 year experience needed",
-          level: "ENTRY LEVEL",
-          mode: "FULL TIME",
-          stage: "NOT APPLIED",
-          date_posted: new Date("2025-03-28"),
-          active: true,
-        },
-      ];
+  describe("getPaginatedJobs", () => {
+     it("should handle successful pagination operation", async () => {
+    const paginatedReq = {
+      ...mockReq,
+      query: {
+        page: "2",
+        limit: "10"
+      }
+    };
+    
+    const mockJobs: Partial<Job>[] = [
+      {
+        id: "1",
+        title: "backend developer",
+        company: "abc",
+        location: "canada",
+        url: "http://www.abc.com",
+        description:
+          "Entry level backend developer with 1 year experience needed",
+        level: "ENTRY LEVEL",
+        mode: "FULL TIME",
+        stage: "NOT APPLIED",
+        date_posted: new Date("2025-03-28"),
+        active: true,
+      },
+    ];
 
-      (jobService.getAllJobs as jest.Mock).mockResolvedValue(mockJobs);
+    const mockPaginationResult = {
+      jobs: mockJobs,
+      total: 15
+    };
+    
+    (jobService.getPaginatedJobs as jest.Mock).mockResolvedValue(mockPaginationResult);
 
-      await jobController.getAllJobs(
-        mockReq as Request,
-        mockRes as Response,
-        mockNext
-      );
+    await jobController.getAllJobs(
+      paginatedReq as unknown as Request,
+      mockRes as Response,
+      mockNext
+    );
 
-      expect(mockRes.status).toHaveBeenCalledWith(200);
-      expect(mockRes.json).toHaveBeenCalledWith({
-        message: "Jobs Retrieved",
-        data: mockJobs,
-        status: "success",
-      });
+    const expectedPaginationMeta = {
+      total: 15,
+      page: 2,
+      limit: 10,
+      totalPages: 2
+    };
+
+    expect(mockRes.status).toHaveBeenCalledWith(200);
+    expect(mockRes.json).toHaveBeenCalledWith({
+      status: "success",
+      message: "Jobs Retrieved",
+      data: mockJobs,
+      metadata: expectedPaginationMeta
     });
+    
+    expect(jobService.getPaginatedJobs).toHaveBeenCalledWith(2, 10);
+  });
   });
 
   describe("getJobById", () => {
@@ -161,6 +185,49 @@ describe("Job Controller", () => {
 
       expect(jobService.deleteJob).toHaveBeenCalledWith(jobId);
       expect(mockRes.status).toHaveBeenCalledWith(200);
+    });
+  });
+
+  describe("updateJob", () => {
+    it("should handle successful job update", async () => {
+      const jobId = "1";
+      const updateData = {
+        title: "fullstack developer",
+        company: "abc",
+        location: "canada",
+        url: "http://www.abc.com",
+        description:
+          "Entry level fullstack developer with 1 year experience needed",
+        level: "ENTRY LEVEL",
+        mode: "FULL TIME",
+        stage: "NOT APPLIED",
+        date_posted: "2025-03-28T00:00:00.000Z",
+        active: true,
+      };
+
+      const updatedJob = {
+        id: jobId,
+        ...updateData,
+      };
+
+      mockReq.params = { id: jobId };
+      mockReq.body = updateData;
+
+      (jobService.updateJob as jest.Mock).mockResolvedValue(updatedJob);
+
+      await jobController.updateJob(
+        mockReq as Request,
+        mockRes as Response,
+        mockNext
+      );
+
+      expect(jobService.updateJob).toHaveBeenCalledWith(jobId, updateData);
+      expect(mockRes.status).toHaveBeenCalledWith(200);
+      expect(mockRes.json).toHaveBeenCalledWith({
+        message: "Job Updated",
+        data: updatedJob,
+        status: "success",
+      });
     });
   });
 });
